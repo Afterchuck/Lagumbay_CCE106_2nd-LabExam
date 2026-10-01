@@ -1,8 +1,22 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AppLayout() {
-  // TODO EXAM: Check authentication and session restoration before showing the tabs.
-  // TODO EXAM: Redirect unauthenticated users to /sign-in.
+  const { token, authLoading } = useAuth();
+
+  if (authLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#245bb2" />
+      </View>
+    );
+  }
+
+  if (!token) {
+    return <Redirect href="/sign-in" />;
+  }
+
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: '#245bb2', headerTintColor: '#17324d', tabBarIconStyle: { display: 'none' } }}>
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
@@ -11,3 +25,4 @@ export default function AppLayout() {
     </Tabs>
   );
 }
+
