@@ -1,50 +1,88 @@
-# Welcome to your Expo app 👋
+# CCE106 Practical Laboratory Examination
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Student Service Portal
 
-## Get started
+### Student Information
 
-1. Install dependencies
+Name:
 
-   ```bash
-   npm install
-   ```
+Section:
 
-2. Start the app
+Date:
 
-   ```bash
-   npx expo start
-   ```
+### Required Features
 
-In the output, you'll find options to open the app in a
+- [ ] Login
+- [ ] Authentication state
+- [ ] Secure token storage
+- [ ] Protected navigation
+- [ ] Dashboard
+- [ ] Student API request
+- [ ] Loading state
+- [ ] Error state
+- [ ] Empty state
+- [ ] Search/filter
+- [ ] Dynamic student details
+- [ ] Profile
+- [ ] Session restoration
+- [ ] Logout
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### API
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Base URL: `REPLACE_WITH_EXAM_API` (set in `constants/api.ts`)
 
-## Get a fresh project
+POST /login
 
-When you're ready, run:
+GET /students
 
-```bash
-npm run reset-project
+GET /students/{id}
+
+GET /profile
+
+Use the instructor's API documentation for payloads and response fields.
+
+### How to Run
+
+```sh
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Press `w` for web, or run `npm run web` directly.
 
-## Learn more
+The starter opens the dashboard without authentication so its screens can be inspected.
+Use **Open Sign In** to preview the login screen. Login, logout, and View Details
+buttons intentionally do nothing until their TODOs are completed. Student screens
+initially show loading until students implement the loaders. Preview the detail
+layout on web at `/student/1`; this does not create a sample API record.
 
-To learn more about developing your project with Expo, look at the following resources:
+Search for `TODO EXAM` throughout the project. No requests or credentials are
+provided. Protect both the application tabs and the student detail route.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Expo SecureStore is used only in `context/AuthContext.tsx`. Its methods are not
+implemented in this starter. SecureStore supports native platforms, not web;
+check availability before calling it and verify secure session persistence on
+Android/iOS. See the [Expo SDK 54 SecureStore documentation](https://docs.expo.dev/versions/v54.0.0/sdk/securestore/).
 
-## Join the community
+Compiler and lint checks:
 
-Join our community of developers creating universal apps.
+```sh
+npx tsc --noEmit
+npm run lint
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Required Git Commits
+
+Students must create at least five meaningful commits.
+
+Suggested examples:
+
+- `exam: setup navigation`
+- `exam: implement login`
+- `exam: integrate student api`
+- `exam: add dynamic student details`
+- `exam: implement session and logout`
+
+### Submission
+
+Submit the GitHub repository URL according to the instructor's instructions.
