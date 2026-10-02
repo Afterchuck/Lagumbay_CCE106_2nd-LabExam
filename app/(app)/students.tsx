@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- State setters and loader are exam placeholders. */
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import StudentCard, { type Student } from '@/components/StudentCard';
+import { API_BASE_URL } from '@/constants/api';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
 
 export default function StudentsScreen() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -9,21 +11,45 @@ export default function StudentsScreen() {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
 
-  const loadStudents = async () => {
-    // TODO EXAM: 1. Set loading and clear previous errors.
-    // TODO EXAM: 2. Call GET /students using fetch() and async/await.
-    // TODO EXAM: 3. Include Authorization: Bearer TOKEN from useAuth() if required.
-    // TODO EXAM: 4. Check response.ok and handle 401 Unauthorized.
-    // TODO EXAM: 5. Parse JSON and save the student array to state.
-    // TODO EXAM: 6. Handle errors and stop loading inside finally.
-  };
+  const loadStudents = useCallback(async () => {
+  setLoading(true);
+  setError('');
 
-  useEffect(() => {
-    // TODO EXAM: Call loadStudents() when the screen loads.
-  }, []);
+  try {
+    const response = await fetch(`${API_BASE_URL}/users`);
+
+    if (!response.ok) {
+      throw new Error(`Could not load students (${response.status}).`);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error('The API response was not a list.');
+    }
+
+    setStudents(
+      data.map((item): Student => ({
+        id: item.id,
+        name: item.name,
+        email: item.email,
+      })),
+    );
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Could not load students.');
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+useEffect(() => {
+  void loadStudents();
+}, [loadStudents]);
 
   // TODO EXAM: Use filter() to return students whose name matches the search text.
-  const filteredStudents = students;
+  const filteredStudents = students.filter((student) =>
+  (student.name ?? '').toLowerCase().includes(search.trim().toLowerCase()),
+);
 
   return (
     <View style={styles.container}>

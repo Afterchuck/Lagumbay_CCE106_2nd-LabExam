@@ -1,6 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Setters and imports are reserved for exam TODOs. */
-import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { API_BASE_URL } from '@/constants/api';
 import * as SecureStore from 'expo-secure-store';
+import { createContext, useEffect, useState, type ReactNode } from 'react';
+import { Platform } from 'react-native';
+
+export const TOKEN_KEY = 'student_service_token';
 
 export type User = {
   id?: string | number;
@@ -20,39 +23,120 @@ type AuthContextValue = {
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const normalizeUser = (
+  userData: Record<string, any> | null | undefined,
+  fallbackEmail?: string,
+): User => ({
+  id: userData?.id ?? userData?.userId ?? userData?._id,
+  name:
+    userData?.name ??
+    userData?.fullName ??
+    userData?.username ??
+    fallbackEmail?.split('@')[0] ??
+    'Student',
+  email: userData?.email ?? fallbackEmail ?? '',
+  role: userData?.role ?? 'Student',
+});
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  // False keeps the unfinished starter usable; no session has been restored yet.
-  const [authLoading, setAuthLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const login = async (accessToken: string, userData: User) => {
-    // TODO EXAM: Save the access token with SecureStore.setItemAsync().
-    // TODO EXAM: Update token state and user state with the supplied arguments.
-    // TODO EXAM: Handle storage failures; never store the password.
+    try {
+      if (Platform.OS !== 'web' && (await SecureStore.isAvailableAsync())) {
+        await SecureStore.setItemAsync(TOKEN_KEY, accessToken);
+      }
+    } catch (error) {
+      console.warn('Failed to store auth token', error);
+    }
+
+    setToken(accessToken);
+    setUser(userData);
   };
 
   const logout = async () => {
-    // TODO EXAM: Delete the saved token using SecureStore.deleteItemAsync().
-    // TODO EXAM: Clear token state and user state.
-    // TODO EXAM: Handle storage errors and redirect to /sign-in after logout.
+    try {
+      if (Platform.OS !== 'web' && (await SecureStore.isAvailableAsync())) {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+      }
+    } catch (error) {
+      console.warn('Failed to clear auth token', error);
+    }
+
+    setToken(null);
+    setUser(null);
   };
 
   const restoreSession = async () => {
-    // TODO EXAM: Set authLoading while restoring the session.
-    // TODO EXAM: Read the saved token with SecureStore.getItemAsync().
-    // TODO EXAM: Validate the token via GET /profile with a Bearer token.
-    // TODO EXAM: Update token and user state for a valid session.
-    // TODO EXAM: Handle 401 Unauthorized / expired sessions and clear invalid credentials.
-    // TODO EXAM: Handle errors and stop authLoading in finally.
+    setAuthLoading(true);
+
+    try {
+      if (Platform.OS === 'web') {
+        setToken(null);
+        setUser(null);
+        return;
+      }
+
+      if (!(await SecureStore.isAvailableAsync())) {
+        setToken(null);
+        setUser(null);
+        return;
+      }
+
+      const savedToken = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (!savedToken) {
+        setToken(null);
+        setUser(null);
+        return;
+      }
+
+      if (!API_BASE_URL || API_BASE_URL === 'REPLACE_WITH_EXAM_API') {
+        setToken(savedToken);
+        setUser(null);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/profile`, {
+        headers: {
+          Authorization: `Bearer ${savedToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        setToken(null);
+        setUser(null);
+        return;
+      }
+
+      const profile = await response.json();
+      const payload = profile.user ?? profile.profile ?? profile.data ?? profile;
+
+      setToken(savedToken);
+      setUser(normalizeUser(payload, profile.email));
+    } catch (error) {
+      console.warn('Failed to restore session', error);
+      setToken(null);
+      setUser(null);
+
+      try {
+        if (Platform.OS !== 'web' && (await SecureStore.isAvailableAsync())) {
+          await SecureStore.deleteItemAsync(TOKEN_KEY);
+        }
+      } catch {
+        // ignore cleanup errors
+      }
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   useEffect(() => {
-    // TODO EXAM: Call restoreSession() on startup.
+    void restoreSession();
   }, []);
 
-  // SecureStore is native-only. The web skeleton makes no storage calls.
-  // TODO EXAM: Check platform availability before storage calls; test persistence on Android/iOS.
   return (
     <AuthContext.Provider value={{ token, user, authLoading, login, logout, restoreSession }}>
       {children}

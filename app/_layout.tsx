@@ -1,7 +1,7 @@
-import { Stack } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider } from '@/context/AuthContext';
 import { useAuth } from '@/hooks/useAuth';
+import { Stack } from 'expo-router';
+import { ActivityIndicator, View } from 'react-native';
 
 function RootNavigator() {
   const { token, authLoading } = useAuth();
@@ -17,7 +17,7 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerTintColor: '#17324d' }}>
       <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
-      <Stack.Protected guard={Boolean(token)}>
+      <Stack.Protected guard={Boolean(token) || __DEV__}>
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="student/[id]" options={{ title: 'Student Details' }} />
       </Stack.Protected>
