@@ -8,16 +8,28 @@ function RootNavigator() {
 
   if (authLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#f2f5fa',
+        }}
+      >
         <ActivityIndicator size="large" color="#245bb2" />
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerTintColor: '#17324d' }}>
-      <Stack.Screen name="sign-in" options={{ title: 'Sign In' }} />
-      <Stack.Protected guard={Boolean(token) || __DEV__}>
+    <Stack
+      initialRouteName={token ? '(app)' : 'sign-in'}
+      screenOptions={{ headerTintColor: '#17324d' }}
+    >
+      <Stack.Protected guard={!token}>
+        <Stack.Screen name="sign-in" options={{ title: 'Sign In', headerShown: false }} />
+      </Stack.Protected>
+      <Stack.Protected guard={Boolean(token)}>
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
         <Stack.Screen name="student/[id]" options={{ title: 'Student Details' }} />
       </Stack.Protected>
@@ -32,4 +44,3 @@ export default function RootLayout() {
     </AuthProvider>
   );
 }
-

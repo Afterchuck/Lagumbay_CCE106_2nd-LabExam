@@ -86,3 +86,7 @@ Suggested examples:
 ### Submission
 
 Submit the GitHub repository URL according to the instructor's instructions.
+
+to login:
+email: student Email
+password: password123

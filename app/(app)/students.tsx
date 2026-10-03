@@ -45,17 +45,16 @@ useEffect(() => {
   void loadStudents();
 }, [loadStudents]);
 
-  // TODO EXAM: Use filter() to return students whose name matches the search text.
   const filteredStudents = students.filter((student) =>
-  (student.name ?? '').toLowerCase().includes(search.trim().toLowerCase()),
-);
+    (student.name ?? '').toLowerCase().includes(search.trim().toLowerCase()),
+  );
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Students</Text>
       <TextInput style={styles.input} accessibilityLabel="Search students" placeholder="Search by name" value={search} onChangeText={setSearch} />
       {loading ? (
-        <View style={styles.state}><ActivityIndicator color="#245bb2" /><Text style={styles.text}>Loading students…</Text><Text style={styles.note}>Complete loadStudents() to finish this state.</Text></View>
+        <View style={styles.state}><ActivityIndicator color="#245bb2" /><Text style={styles.text}>Loading students…</Text></View>
       ) : error ? (
         <View style={styles.state} accessibilityLiveRegion="polite"><Text style={styles.error}>{error}</Text><Pressable accessibilityRole="button" onPress={loadStudents}><Text style={styles.link}>Try Again</Text></Pressable></View>
       ) : (

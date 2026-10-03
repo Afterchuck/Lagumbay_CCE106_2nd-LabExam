@@ -10,6 +10,10 @@ export type User = {
   name?: string;
   email?: string;
   role?: string;
+  username?: string;
+  phone?: string;
+  website?: string;
+  course?: string;
 };
 
 type AuthContextValue = {
@@ -36,6 +40,10 @@ const normalizeUser = (
     'Student',
   email: userData?.email ?? fallbackEmail ?? '',
   role: userData?.role ?? 'Student',
+  username: userData?.username,
+  phone: userData?.phone,
+  website: userData?.website,
+  course: userData?.course ?? 'BS Information Technology',
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {

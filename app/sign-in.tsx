@@ -1,8 +1,9 @@
 import { API_BASE_URL } from '@/constants/api';
 import { type User } from '@/context/AuthContext';
 import { useAuth } from '@/hooks/useAuth';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -15,12 +16,19 @@ import {
 
 export default function SignInScreen() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { token, login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (token) {
+      router.replace('/');
+    }
+  }, [token, router]);
 
   const handleLogin = async () => {
     const trimmedEmail = email.trim();
@@ -81,6 +89,10 @@ export default function SignInScreen() {
             trimmedEmail.split('@')[0],
           email: userPayload.email ?? trimmedEmail,
           role: userPayload.role ?? 'Student',
+          username: userPayload.username,
+          phone: userPayload.phone,
+          website: userPayload.website,
+          course: userPayload.course ?? 'BS Information Technology',
         };
 
         // 5. Pass the returned access token and user to the context login().
@@ -116,6 +128,10 @@ export default function SignInScreen() {
           name: matchedUser.name ?? matchedUser.username ?? trimmedEmail.split('@')[0],
           email: matchedUser.email ?? trimmedEmail,
           role: 'Student',
+          username: matchedUser.username,
+          phone: matchedUser.phone,
+          website: matchedUser.website,
+          course: 'BS Information Technology',
         };
 
         await login(dynamicToken, userData);
@@ -159,14 +175,29 @@ export default function SignInScreen() {
         />
 
         <Text style={styles.label}>Password</Text>
-        <TextInput
-          style={styles.input}
-          accessibilityLabel="Password"
-          placeholder="Enter your password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            accessibilityLabel="Password"
+            placeholder="Enter your password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            onPress={() => setShowPassword((prev) => !prev)}
+            style={styles.eyeButton}
+            hitSlop={8}
+          >
+            <MaterialIcons
+              name={showPassword ? 'visibility' : 'visibility-off'}
+              size={22}
+              color="#536579"
+            />
+          </Pressable>
+        </View>
 
         <View style={styles.feedback} accessibilityLiveRegion="polite">
           {loading && <ActivityIndicator color="#245bb2" accessibilityLabel="Signing in" />}
@@ -230,6 +261,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     color: '#17324d',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#c6d2e1',
+    borderRadius: 8,
+    marginBottom: 16,
+    backgroundColor: '#ffffff',
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 14,
+    fontSize: 16,
+    color: '#17324d',
+  },
+  eyeButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   feedback: {
     minHeight: 28,

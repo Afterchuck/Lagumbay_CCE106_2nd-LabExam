@@ -14,7 +14,7 @@ export default function AppLayout() {
     );
   }
 
-  if (!token && !__DEV__) {
+  if (!token) {
     return <Redirect href="/sign-in" />;
   }
 
@@ -41,4 +41,3 @@ export default function AppLayout() {
     </Tabs>
   );
 }
-
