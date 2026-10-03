@@ -105,6 +105,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
+        if (response.status === 404 && API_BASE_URL.includes('jsonplaceholder.typicode.com')) {
+          setToken(savedToken);
+          setUser({ role: 'Student' });
+          return;
+        }
+
         await SecureStore.deleteItemAsync(TOKEN_KEY);
         setToken(null);
         setUser(null);

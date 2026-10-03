@@ -1,7 +1,7 @@
 import { type Student } from '@/components/StudentCard';
 import { API_BASE_URL } from '@/constants/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function StudentDetailsScreen() {
@@ -11,7 +11,7 @@ export default function StudentDetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const loadStudent = async () => {
+  const loadStudent = useCallback(async () => {
     if (!id || !/^\d+$/.test(id)) {
       setError('Invalid student ID.');
       setLoading(false);
@@ -31,11 +31,11 @@ export default function StudentDetailsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     void loadStudent();
-  }, [id]);
+  }, [loadStudent]);
 
   const initials = student?.name
     ?.split(' ')
