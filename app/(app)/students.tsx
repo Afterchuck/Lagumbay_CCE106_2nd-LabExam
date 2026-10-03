@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- State setters and loader are exam placeholders. */
 import StudentCard, { type Student } from '@/components/StudentCard';
 import { API_BASE_URL } from '@/constants/api';
 import { useCallback, useEffect, useState } from 'react';

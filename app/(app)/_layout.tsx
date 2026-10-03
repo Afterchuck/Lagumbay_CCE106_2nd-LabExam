@@ -1,6 +1,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Redirect, Tabs } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 
 export default function AppLayout() {
   const { token, authLoading } = useAuth();
@@ -14,11 +15,26 @@ export default function AppLayout() {
   }
 
   if (!token && !__DEV__) {
-  return <Redirect href="/sign-in" />;
+    return <Redirect href="/sign-in" />;
   }
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: '#245bb2', headerTintColor: '#17324d', tabBarIconStyle: { display: 'none' } }}>
+    <Tabs
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: '#245bb2',
+        headerTintColor: '#17324d',
+        tabBarIcon: ({ color, size }) => {
+          const iconName =
+            route.name === 'index'
+              ? 'house.fill'
+              : route.name === 'students'
+                ? 'person.3.fill'
+                : 'person.fill';
+
+          return <IconSymbol name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
       <Tabs.Screen name="students" options={{ title: 'Students' }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
